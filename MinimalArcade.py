@@ -81,7 +81,7 @@ class MimimalArcade(arcade.Window):
             if entity.class_type == GameClassTypes.PLAYER:
                 entity.move()
             if entity.class_type == GameClassTypes.BULLET:
-                entity.center_x += entity.change_x
+                w
 
     def on_draw(self):
         """ Render the screen. """
