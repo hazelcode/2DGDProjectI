@@ -20,13 +20,17 @@ class MinimalSprite(arcade.Sprite):
     def move(self, direction:MoveEnum):
         #as a class exercise, lets fix this so it doesn't go off the window
         if direction == MoveEnum.UP:
-            self.center_y += self.speed
+            if (self.center_y<1024):
+                self.center_y += self.speed
         elif direction == MoveEnum.DOWN:
-            self.center_y -= self.speed
+            if (self.center_y > 0):
+                self.center_y -= self.speed
         elif direction == MoveEnum.LEFT:
-            self.center_x -=self.speed
+            if (self.center_x > 0):
+                self.center_x -=self.speed
         elif direction == MoveEnum.RIGHT:
-            self.center_x += self.speed
+            if (self.center_x < 1024):
+                self.center_x += self.speed
         else: #should be MoveEnum.NONE
             pass
 
@@ -65,6 +69,10 @@ class MimimalArcade(arcade.Window):
             self.direction = MoveEnum.UP
         elif key == arcade.key.DOWN or key == arcade.key.S:
             self.direction = MoveEnum.DOWN
+        elif key == arcade.key.LEFT or key == arcade.key.A:
+            self.direction = MoveEnum.LEFT
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.direction = MoveEnum.RIGHT
 
     def on_key_release(self, key: int, modifiers: int):
         """called by arcade for keyup events"""
@@ -73,6 +81,12 @@ class MimimalArcade(arcade.Window):
             self.direction = MoveEnum.NONE
         if (key == arcade.key.DOWN or key == arcade.key.S) and\
                 self.direction == MoveEnum.DOWN:
+            self.direction = MoveEnum.NONE
+        if (key == arcade.key.LEFT or key == arcade.key.A) and\
+                self.direction == MoveEnum.LEFT:
+            self.direction = MoveEnum.NONE
+        if (key == arcade.key.RIGHT or key == arcade.key.D) and\
+                self.direction == MoveEnum.RIGHT:
             self.direction = MoveEnum.NONE
 
 def main():
