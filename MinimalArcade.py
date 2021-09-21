@@ -1,8 +1,18 @@
+#################################
+#
+# Space Game
+# by benb
+# Controls: WASD/Arrows - Move
+#           Space Bar - Shoot
+#
+#################################
+
 import arcade
 import pathlib
 from enum import auto, Enum
 
 RESOURCE_DIRECTORY = pathlib.Path.cwd() / 'Assets'
+
 
 class MoveEnum(Enum):
     NONE = auto()
@@ -10,6 +20,7 @@ class MoveEnum(Enum):
     DOWN = auto()
     LEFT = auto()
     RIGHT = auto()
+
 
 class GameClassTypes(Enum):
     # all the different types of classes the game is going to manage
@@ -38,21 +49,16 @@ class MinimalSprite(arcade.Sprite):
             pass
 
     def shoot(self):
-        # arcade.play_sound(self.gun_sound)
-
         bullet = arcade.Sprite(RESOURCE_DIRECTORY / 'laserRed01.png', 1)
         bullet.class_type = GameClassTypes.BULLET
-        bullet.angle = 0
-        bullet.change_x = 20
+        bullet.speed = 20
         bullet.center_x = self.center_x + 24
         bullet.center_y = self.center_y
-
         self.game.pictlist.append(bullet)
 
 
 class MimimalArcade(arcade.Window):
-
-    def __init__(self, room_width:int, room_height:int):
+    def __init__(self, room_width: int, room_height: int):
         super().__init__(room_width, room_height)
         self.image_path = RESOURCE_DIRECTORY/ "PlayerShip.png"
         self.player = None
@@ -64,6 +70,7 @@ class MimimalArcade(arcade.Window):
         arcade.set_background_color(arcade.color.PURPLE)
         self.step = 0
         self.background_step = 0
+        self.snd_gun_fire = None
 
     def setup(self):
         self.player = MinimalSprite(str(self.image_path), speed=3, game_window=self)
@@ -73,22 +80,24 @@ class MimimalArcade(arcade.Window):
         self.pictlist.append(self.player)
         # load background texture
         self.background = arcade.load_texture(RESOURCE_DIRECTORY / 'background.png')
+        self.snd_gun_fire = arcade.load_sound(RESOURCE_DIRECTORY / 'fire.wav')
+        self.snd_gun_fire.play(0)  # so the game doesn't freeze the first time you shoot - can we avoid this?
 
     def on_update(self, delta_time: float):
-        #to get really smooth movement we would use the delta time to
-        #adjust the movement, but for this simple version I'll forgo that.
+        # to get really smooth movement we would use the delta time to
+        # adjust the movement, but for this simple version I'll forgo that.
         for entity in self.pictlist:
             if entity.class_type == GameClassTypes.PLAYER:
                 entity.move()
             if entity.class_type == GameClassTypes.BULLET:
-                w
+                entity.center_x += entity.speed
 
     def on_draw(self):
         """ Render the screen. """
         self.step += 1
-        self.background_step -= 2 # there's probably a better way to do this
+        self.background_step -= 2  # there's probably a better way to do this
 
-        if (self.background_step<-self.room_width):
+        if self.background_step < -self.room_width:
             self.background_step = 0
         arcade.start_render()
 
@@ -106,25 +115,27 @@ class MimimalArcade(arcade.Window):
         """Called whenever a key is pressed. """
         if key == arcade.key.UP or key == arcade.key.W:
             self.player.change_y = self.player.speed
-        elif key == arcade.key.DOWN or key == arcade.key.S:
+        if key == arcade.key.DOWN or key == arcade.key.S:
             self.player.change_y = -self.player.speed
-        elif key == arcade.key.LEFT or key == arcade.key.A:
+        if key == arcade.key.LEFT or key == arcade.key.A:
             self.player.change_x = -self.player.speed
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
+        if key == arcade.key.RIGHT or key == arcade.key.D:
             self.player.change_x = self.player.speed
-        elif key == arcade.key.SPACE:
+        if key == arcade.key.SPACE:
+            arcade.play_sound(self.snd_gun_fire)
             self.player.shoot()
 
     def on_key_release(self, key: int, modifiers: int):
         """called by arcade for keyup events"""
-        if (key == arcade.key.UP or key == arcade.key.W):
+        if key == arcade.key.UP or key == arcade.key.W:
             self.player.change_y = 0
-        if (key == arcade.key.DOWN or key == arcade.key.S):
+        if key == arcade.key.DOWN or key == arcade.key.S:
             self.player.change_y = 0
-        if (key == arcade.key.LEFT or key == arcade.key.A):
+        if key == arcade.key.LEFT or key == arcade.key.A:
             self.player.change_x = 0
-        if (key == arcade.key.RIGHT or key == arcade.key.D):
+        if key == arcade.key.RIGHT or key == arcade.key.D:
             self.player.change_x = 0
+
 
 def main():
     """ Main method """
@@ -132,7 +143,6 @@ def main():
     window.setup()
     arcade.run()
 
+
 if __name__ == '__main__':
     main()
-
-
